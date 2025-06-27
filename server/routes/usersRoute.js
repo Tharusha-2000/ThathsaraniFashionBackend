@@ -11,6 +11,7 @@ const middleware = require('../middleware/auth.js');
 
 
 /*..........................................login.................................................... */
+router.post("/register",controller.register,mailer.sendWelcomeEmail);
 router.post("/login",controller.login);
 router.post("/generateOTP&sendmail",middleware.localVariables,controller.generateOTP,mailer.sendingOTPMail);
 router.get("/verifyOTP",controller.verifyOTP);
@@ -21,7 +22,7 @@ router.get('/users',middleware.Auth,middleware.IsAdmin,controller.getUsers);
 router.get('/user/:id',middleware.Auth,middleware.IsAdmin,controller.getUserById);
 router.delete('/users/:id',middleware.Auth,middleware.IsAdmin,controller.deleteUser);
 router.put('/users/:id',middleware.Auth,middleware.IsAdmin,controller.changeRole);
-router.post("/register",controller.register,mailer.sendWelcomeEmail);
+
 
 
 

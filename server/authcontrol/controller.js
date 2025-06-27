@@ -104,7 +104,7 @@ exports.resetPassword = async (req, res) => {
       return res.status(440).json({ msg: "Session expired!" });
 
     const { email, password } = req.body;
-
+    console.log(req.body);
     try {
       const user = await User.findOne({ email });
       if (!user) {
