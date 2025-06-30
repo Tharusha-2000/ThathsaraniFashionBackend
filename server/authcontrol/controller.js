@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const Task = require("../models/task.js");
+const Product = require("../models/product.js");
 
 /*..............................login page.............................................*/
 
@@ -454,6 +455,165 @@ exports.createTask=async(req, res) =>{
    
   }
 };
+
+
+exports.createProduct=async(req, res) =>{
+
+  const allowedCategories = [
+    "Blouse",
+    "Baggy T-Shirt",
+    "T-Shirt",
+    "Lady's Denim",
+    "Frock",
+    "Baby Frock",
+    "Baby Full Dress",
+    "Sale",
+    "Children's Dress",
+  ];
+
+  try {
+    const { name, imageUrl, categories, description, isAvailable, sizes } = req.body;
+
+    // Validate categories 
+    const invalidCategories = categories.filter(
+      (category) => !allowedCategories.includes(category)
+    );
+
+    if (invalidCategories.length > 0) {
+      return res.status(400).json({
+        message: "Invalid categories provided",
+        invalidCategories,
+      });
+    }
+    // Create a new product instance
+    const newProduct = await Product.create({
+      name,
+      imageUrl,
+      categories,
+      description,
+      sizes,
+      isAvailable,
+    });
+
+    
+    // Send a success response
+    res.status(201).json({
+      message: "Product created successfully!",
+      product: newProduct,
+    });
+
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({
+      message: "Failed to create product",
+      error: error.message,
+    });
+  }
+
+};
+
+
+exports.deleteProduct = async (req, res) => {
+   try {
+    const { id } = req.params;
+    console.log(id);
+
+    //Find and delete the product by ID
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    if (!deletedProduct) {
+       return res.status(404).json({
+           message: "Product not found",
+        });
+     }
+    // Send a success response
+    res.status(200).json({
+       message: "Product deleted successfully!",
+       product: deletedProduct,
+     });
+   } catch (error) {
+     // Handle errors
+     res.status(500).json({
+       message: "Failed to delete product",
+       error: error.message,
+     });
+   }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    console.log(id);
+    console.log(updates);
+
+
+    //Find and update the product by ID
+    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!updatedProduct) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+    console.log(updatedProduct);
+    // Send a success response
+    res.status(200).json({
+      message: "Product updated successfully!",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    // Handle errors
+     res.status(500).json({
+       message: "Failed to update product",
+       error: error.message,
+
+    });
+  }
+};
+
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    // Fetch all products from the database
+       // Extract query parameters
+       const { minPrice, maxPrice, categories } = req.query;
+
+       // Build the query object
+       const query = {};
+   
+       // Add price range filter if provided
+       if (minPrice && maxPrice) {
+        query["sizes.price"] = { $gte: Number(minPrice), $lte: Number(maxPrice) }; // Query nested sizes.price
+      }
+   
+       // Add categories filter if provided
+       if (categories) {
+         const categoryArray = categories.split(","); // Split categories into an array
+         query.categories = { $in: categoryArray }; // Match any of the categories
+       }
+   
+    console.log("Query:", query);
+    const products = await Product.find(query);
+    console.log("Products:", products);
+    // Send a success response with the list of products
+    res.status(200).json({
+      message: "Products retrieved successfully!",
+      products,
+    });
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({
+      message: "Failed to retrieve products",
+      error: error.message,
+    });
+  }
+};
+
+    
+
+
+
+
 
 exports.deleteTask= async (req, res) => {
   try {

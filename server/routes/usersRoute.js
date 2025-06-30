@@ -24,6 +24,10 @@ router.delete('/users/:id',middleware.Auth,middleware.IsAdmin,controller.deleteU
 router.put('/users/:id',middleware.Auth,middleware.IsAdmin,controller.changeRole);
 
 
+router.post('/product',controller.createProduct);
+router.get('/products', controller.getAllProducts);
+router.delete('/product/:id', controller.deleteProduct);
+router.put('/product/:id', controller.updateProduct);
 
 
 /*..........................................project task part................................................ */
