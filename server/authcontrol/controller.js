@@ -283,11 +283,13 @@ exports.getUser = async (req, res) => {
 exports.updateuser=async (req, res) => {
     const { id } = req.data;
     try {
-    
+      console.log(id);  
       const body = req.body;
+      console.log(body);  
+
       // Update the data
-      const result = await User.updateOne({ _id: id}, body);
-      
+      const result = await User.updateOne({ _id: id }, { $set: body });
+      console.log(result);
       if (result.nModified === 0) {
         return res.status(404).send({ error: "User not found or no changes applied" });
       }
@@ -609,7 +611,31 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-    
+exports.getProductById = async (req, res) => {
+  try {
+    const { id } = req.params; // Extract the product ID from the URL
+    console.log("Product ID:", id);
+    if (!id) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const product = await Product.findById(id); // Fetch the product by ID
+    console.log("Product:", product);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({
+      message: "Product retrieved successfully!",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to retrieve product",
+      error: error.message,
+    });
+  }
+};   
 
 
 

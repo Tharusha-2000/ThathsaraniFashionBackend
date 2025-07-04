@@ -26,6 +26,7 @@ router.put('/users/:id',middleware.Auth,middleware.IsAdmin,controller.changeRole
 
 router.post('/product',controller.createProduct);
 router.get('/products', controller.getAllProducts);
+router.get('/product/:id',controller.getProductById);
 router.delete('/product/:id', controller.deleteProduct);
 router.put('/product/:id', controller.updateProduct);
 
@@ -46,7 +47,7 @@ router.get('/interns', middleware.Auth,middleware.IsNotIntern,controller.getInte
 router.put('/uploadImage',middleware.Auth,middleware.IsUser,controller.uploadImageByuser);
 
 router.get('/user',middleware.Auth,middleware.IsUser,controller.getUser);
-router.put("/updateuser",middleware.Auth,middleware.IsNotIntern,controller.updateuser);
+router.put("/updateuser",middleware.Auth,middleware.IsUser,controller.updateuser);
 
 /*..........................................SendeEmailToUsers................................................ */
 router.post("/sendUserToEmail",middleware.Auth,middleware.IsUser,controller.sendEmailToUsers,mailer.sendEmail);

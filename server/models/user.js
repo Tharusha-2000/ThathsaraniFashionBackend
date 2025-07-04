@@ -32,47 +32,14 @@ const userSchema = mongoose.Schema({
       type: String,
       required: true,
     },
-
-    jobtitle:{
-      type: String,
-      required:false,
-    },
-    employmentType:{
-      type: String,
-      required:false,
-    },
-    department:{
-      type: String,
-      required:false,
-    },
-    imageUrl: {
+    address: {
       type: String,
       required: false,
     },
-    cvUrl :{
-      type: String,
-      required: false,
-    },
- 
-  university: {
-    type: String,
-   // required: true
-  },
-
-  GPA: {
+    phoneNo: {
     type: Number,
-   // required: true
-  },
-  phonenumber: {
-    type: Number,
-   // required: true
-  },
- 
-  schedules: [{
-    title: String,
-    start: Date,
-    end: Date,
-  }],
+    // required: true
+    }
   
    },
   );
