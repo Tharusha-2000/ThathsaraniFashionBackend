@@ -31,6 +31,13 @@ router.delete('/product/:id', controller.deleteProduct);
 router.put('/product/:id', controller.updateProduct);
 
 
+
+
+router.get('/cart',middleware.Auth,middleware.IsUser,controller.getCartByUserId);
+router.post('/cart',middleware.Auth,middleware.IsUser,controller.addToCart);
+router.put('/cart/:id',middleware.Auth,middleware.IsUser,controller.updateFromCart);
+router.delete('/cart/:id',middleware.Auth,middleware.IsUser,controller.deleteFromCart);
+
 /*..........................................project task part................................................ */
 router.get('/taskinterns', middleware.Auth,middleware.IsNotIntern,controller.getInternsWithTasks);
 router.get('/task',middleware.Auth,middleware.IsIntern,controller.getTask);

@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
 
 const CartSchema = new mongoose.Schema({
-    // title: {
-    //     type: String,
-    //     required: true,
-    //     minlength: 1,
-    //     trim: true
-    // },
     
     userId: {
         type: mongoose.Types.ObjectId,
@@ -27,25 +21,11 @@ const CartSchema = new mongoose.Schema({
         required: true,
        
     },
-    pizzaSize: {
+    clothSize: {
         type: String,
         required: true,
     },
-        
-    
-    // isComplete: {
-    //     type: Boolean,
-    //     default: false
-    // },
-    // mentorEmail:{
-    //     type: String,
-    // },
-    // isVerified:{
-    //     type: Boolean,
-    //     default: false
-    // }
-
-
+          
 
 });
 

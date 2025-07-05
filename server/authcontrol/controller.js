@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const Task = require("../models/task.js");
 const Product = require("../models/product.js");
+const Cart = require("../models/Cart.js"); 
+const Order = require("../models/Order.js"); 
 
 /*..............................login page.............................................*/
 
@@ -458,6 +460,141 @@ exports.createTask=async(req, res) =>{
   }
 };
 
+exports.getCartByUserId = async (req, res) => {
+  try {
+    const { id } = req.data; // Extract userId from request parameters
+    console.log("Request data:", req.data); 
+    if (!id) {
+      return res.status(400).json({ message: "Missing userId." });
+    }
+
+    // Fetch cart items for the given userId
+    const cartItems = await Cart.find({ userId: id }).populate("productId");
+    console.log(cartItems);
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(404).json({ message: "No cart items found for this user." });
+    }
+
+    return res.status(200).json({ cartItems });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+
+
+exports.addToCart=async(req, res) =>{
+  try {
+    const { id } = req.data;
+    const {
+      productId,
+      unitPrice,
+      clothSize,
+      count,
+    } = req.body;
+    console.log(req.body);
+    console.log(id);
+    const userId = id; 
+    if (!userId || !productId || !clothSize || !count) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+   
+
+    const existingItem = await Cart.findOne({
+      userId,
+      productId,
+      clothSize,
+    });
+
+    if (existingItem) {
+      const newCount = existingItem.count + count;
+
+      // Update the existing item using `create` with `upsert`
+      const updatedItem = await Cart.findOneAndUpdate(
+        { userId, productId, clothSize },
+        { count: newCount },
+        { new: true } // Return the updated document
+      ).populate("productId");
+
+      return res.status(200).json({ message: "Cart updated.", cartItem: updatedItem });
+    } else {
+      // Create a new cart item
+      const newCartItem = await Cart.create({
+        userId,
+        productId,
+        unitPrice,
+        clothSize,
+        count,
+      });
+      const populatedCartItem = await newCartItem.populate("productId");
+      return res.status(201).json({ message: "Item added to cart.", cartItem: populatedCartItem });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// PUT API: Update Cart
+
+
+exports.updateFromCart=async(req, res) =>{
+  try {
+    const { id } = req.data; // Extract userId from request parameters
+    const cartId = req.params.id;
+    const { count } = req.body; // Extract count from request body
+    console.log("User ID:", id);
+    console.log("Request data:", req.body);
+    console.log("Cart ID:", id, "Count:", count);
+    if (!id || count === undefined) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    const cartItem = await Cart.findById(cartId);
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found." });
+    }
+
+    if (count <= 0) {
+      await Cart.findByIdAndDelete(cartId);
+      return res.status(200).json({ message: "Cart item removed." });
+    }
+
+    const updatedCartItem = await Cart.findByIdAndUpdate(
+      cartId,
+      { count },
+      { new: true } // Return the updated document
+    ).populate("productId");
+    return res.status(200).json({ message: "Cart item updated.", updatedCartItem });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+
+exports.deleteFromCart=async(req, res) =>{  
+  const { id } = req.data; // Extract userId from request parameters
+  const  cartId  = req.params.id;
+
+  try {
+    // Find and delete the cart item by ID
+    const deletedItem = await Cart.findByIdAndDelete(cartId);
+
+    if (!deletedItem) {
+      return res.status(404).json({ message: "Cart item not found." });
+    }
+
+    res.status(200).json({ message: "Cart item removed successfully.", cartId });
+  } catch (error) {
+    console.error("Error removing cart item:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
 
 exports.createProduct=async(req, res) =>{
 
