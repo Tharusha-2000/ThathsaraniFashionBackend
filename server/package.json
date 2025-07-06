@@ -25,7 +25,8 @@
     "nodemon": "^3.0.3",
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
-    "run": "^1.5.0"
+    "run": "^1.5.0",
+    "stripe": "^18.3.0"
   },
   "description": "",
   "devDependencies": {

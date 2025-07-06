@@ -7,8 +7,13 @@ const Task = require("../models/task.js");
 const Product = require("../models/product.js");
 const Cart = require("../models/Cart.js"); 
 const Order = require("../models/Order.js"); 
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.StripeSecretKey);
+
 
 /*..............................login page.............................................*/
+
+
 
 exports.login = async (req, res) => {
   try {
@@ -677,6 +682,117 @@ exports.deleteProduct = async (req, res) => {
      });
    }
 };
+
+
+
+// Create Order API
+exports.createOrder = async (req, res) => {
+  try {
+    const {
+      userId,
+      fName,
+      lname,
+      email,
+      phoneNum,
+      address,
+      paymentStatus,
+      orderStatus,
+      date,
+      totalPrice,
+      postalcode,
+      cartItems,
+    } = req.body;
+
+    // Validate required fields
+    if (!userId || !fName || !lname || !email || !phoneNum || !address || !totalPrice || !postalcode || !cartItems || cartItems.length === 0) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Create a new order using Mongoose's create method
+    const newOrder = await Order.create({
+      userId,
+      fName,
+      lname,
+      email,
+      phoneNum,
+      address,
+      paymentStatus,
+      orderStatus,
+      date,
+      totalPrice,
+      postalcode,
+      cartItems,
+    });
+
+    res.status(201).json({ message: "Order created successfully.", newOrder});
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const id  = req.data.id; // Extract userId from request parameters
+    const  orderId  = req.params.id; // Extract orderId from URL parameters
+    const { paymentStatus } = req.body; // Extract paymentStatus from request body
+    console.log(orderId, paymentStatus, id);
+    // Validate required fields
+    if (!orderId || paymentStatus === undefined) {
+      return res.status(400).json({ message: "Order ID and payment status are required." });
+    }
+
+    // Find the order by ID and update the payment status
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { paymentStatus },
+      { new: true } // Return the updated document
+    );
+    console.log(updatedOrder);
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    res.status(200).json({ message: "Payment status updated successfully.", updatedOrder });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+
+
+
+
+exports.getClinetsectert = async (req, res) => {
+  try {
+    const { amount, currency, paymentMethodTypes } = req.body;
+    console.log("Request body:", req.body);
+    // Validate required fields
+    if (!amount || !currency || !paymentMethodTypes) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Create a payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency,
+      payment_method_types: paymentMethodTypes,
+    });
+    console.log("Payment Intent:", paymentIntent);
+    // Respond with the client secret
+    res.status(200).json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
+    res.status(500).json({ error: "Failed to create payment intent" });
+  }
+
+}
+
+
+
 
 exports.updateProduct = async (req, res) => {
   try {

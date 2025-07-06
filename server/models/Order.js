@@ -46,12 +46,15 @@ const OrderSchema = new mongoose.Schema({
     postalcode: {
         type: String,
         required: true
-    },
-    cartIds: [{
-        type: mongoose.Types.ObjectId,
-        ref: 'carts',
-        required: true
-    }]
+    }, 
+    cartItems: [
+        {
+          productId: { type: mongoose.Schema.Types.ObjectId, ref: "products", required: true },
+          clothSize: { type: String, required: true },
+          count: { type: Number, required: true },
+          unitPrice: { type: Number, required: true },
+        },
+      ],
           
 
 });

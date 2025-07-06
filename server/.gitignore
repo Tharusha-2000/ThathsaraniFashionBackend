@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 server/.env
+server/package-lock.json
 server/config.js
 /node_modules
 dist

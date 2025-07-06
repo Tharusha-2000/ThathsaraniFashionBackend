@@ -31,6 +31,10 @@ router.delete('/product/:id', controller.deleteProduct);
 router.put('/product/:id', controller.updateProduct);
 
 
+router.post('/order',middleware.Auth,middleware.IsUser,controller.createOrder);
+router.put('/byOrderId/:id',middleware.Auth,middleware.IsUser,controller.updatePaymentStatus);
+
+router.post('/Payment/create-payment-intent',controller.getClinetsectert);
 
 
 router.get('/cart',middleware.Auth,middleware.IsUser,controller.getCartByUserId);
