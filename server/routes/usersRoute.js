@@ -33,6 +33,11 @@ router.put('/product/:id', controller.updateProduct);
 
 router.post('/order',middleware.Auth,middleware.IsUser,controller.createOrder);
 router.put('/byOrderId/:id',middleware.Auth,middleware.IsUser,controller.updatePaymentStatus);
+router.get('/getOrderById',middleware.Auth,middleware.IsUser,controller.fetchOrdersByUserId);
+router.get('/getFeedbackByOrderId/:id',middleware.Auth,middleware.IsUser,controller.getFeedbackByOrderId);
+router.put('/createFeedbackByOrderId',middleware.Auth,middleware.IsUser,controller.updateFeedback);
+
+router.get('/rating',middleware.Auth,middleware.IsUser,controller.getRatingsByProductId);
 
 router.post('/Payment/create-payment-intent',controller.getClinetsectert);
 

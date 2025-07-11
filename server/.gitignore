@@ -7,7 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.env
 server/.env
+package-lock.json
 server/package-lock.json
 server/config.js
 /node_modules

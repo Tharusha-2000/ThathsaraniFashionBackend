@@ -762,7 +762,132 @@ exports.updatePaymentStatus = async (req, res) => {
 };
 
 
+// Fetch orders by userId
+exports.fetchOrdersByUserId = async (req, res) => {
+  try {
+    const { id } = req.data;
+    const userId = id; 
 
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+
+    // Find orders by userId
+    const orders = await Order.find({ userId }).populate('cartItems.productId');
+    console.log("Fetched orders:", orders);
+    // Check if orders exist
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this user." });
+    }
+
+    // Return orders
+    res.status(200).json({ message: "Orders fetched successfully.", orders });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// Get feedback by orderId
+exports.getFeedbackByOrderId = async (req, res) => {
+  try {
+    const { cal } = req.data;
+    const  orderId  = req.params.id;
+    console.log("Order ID:", orderId);
+
+    // Validate orderId
+    if (!orderId) {
+      return res.status(400).json({ message: "Order ID is required." });
+    }
+
+    // Find feedback by orderId
+    const feedback = await Order.findOne({  _id: orderId  });
+
+    
+
+    // Return feedback
+    res.status(200).json({ message: "Feedback fetched successfully.", feedback});
+  } catch (error) {
+    console.error("Error fetching feedback:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+exports.getRatingsByProductId = async (req, res) => {
+  try {
+    const id  = req.data.id; // Extract userId from request parameters
+    const productId = req.query.productId; // Extract productId from request parameters
+    console.log("Product ID:", productId,id);
+    // Validate productId
+    if (!productId) {
+      return res.status(400).json({ error: "Product ID is required" });
+    }
+
+    // Query orders where cartItems contain the given productId
+    const orders = await Order.find({ "cartItems.productId": productId }).populate("userId"); 
+    console.log("Orders with ratings:", orders);
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No ratings found for this product." });
+    }
+
+    // Extract ratings and feedback for the specific productId
+    const ratings = [];
+    orders.forEach(order => {
+      order.cartItems.forEach(item => {
+        if (item.productId.toString() === productId) {
+          ratings.push({
+            orderId: order._id,
+            rating: order.rating,
+            feedback: order.feedback,
+            updatedAt: order.updatedAt,
+            orderStatus: order.orderStatus,
+            userId: order.userId,
+            productId: item.productId,
+            fname: order.userId.fName,
+        
+          });
+        }
+      });
+    });
+
+    // Return the ratings and feedback
+    res.status(200).json({ message: "Ratings fetched successfully.", ratings });
+  } catch (error) {
+    console.error("Error fetching ratings:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+
+
+exports.updateFeedback = async (req, res) => {
+  try {
+    const id  = req.data.id; // Extract userId from request parameters
+    const { orderId, feedback, rating } = req.body;
+    console.log("Request body:", req.body);
+    if (!orderId || !feedback || !rating) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+   
+    const updatedOrder = await Order.findOneAndUpdate(
+      {_id:orderId }, // Search by orderId
+      { feedback, rating }, // Update feedback and rating
+      { new: true } // Return the updated document
+    );
+    console.log("Updated Order:", updatedOrder);
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    res.status(200).json({ message: "Payment status updated successfully.", updatedOrder });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
 
 
 

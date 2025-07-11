@@ -55,8 +55,19 @@ const OrderSchema = new mongoose.Schema({
           unitPrice: { type: Number, required: true },
         },
       ],
-          
 
+    rating: {
+        type: Number,
+        default: 0
+    },
+    feedback: {
+        type: String,
+        default: null
+    },
+
+          
+}, {
+    timestamps: true 
 });
 
 
