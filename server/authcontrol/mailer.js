@@ -69,8 +69,8 @@ exports.sendWelcomeEmail = (req, res) => {
         subject: 'registeration successful',
         html:  `
             <div style="background-color: #f9f9f9; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;">
-              <h1 style="color: blue; text-align: center;">Welcome to Zionlogy</h1>
-              <p style="text-align: center; color: #333;">You have successfully registered to the Zionlogy. Here are your details:</p>
+              <h1 style="color: blue; text-align: center;">Welcome to Thathsarani </h1>
+              <p style="text-align: center; color: #333;">You have successfully registered to the Thathsarani. Here are your details:</p>
               <div style="background-color: #fff; padding: 10px; border-radius: 10px; margin: 20px 0; color: #333;">
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Password:</strong> ${password}</p>
@@ -103,8 +103,9 @@ exports.sendWelcomeEmail = (req, res) => {
 exports.sendEmail = (req, res) => {
   
   try {
-    const { email, subject, message,UserEmail } = res.locals.userData;
-    console.log(UserEmail)
+    const { email, cartItems, totalPrice } = res.locals.userData;
+    console.log(email,cartItems,totalPrice);
+
     var transporter = nodemailer.createTransport({
 
         service: 'gmail',
@@ -118,8 +119,51 @@ exports.sendEmail = (req, res) => {
       var mailOptions = {
         from: process.env.Email,
         to: email,
-        subject: subject,
-        html: `Message from ${UserEmail}: ${message}`
+        subject: `Order Details for Order `,
+        html: `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+    <h1 style="background-color: #f4f4f4; padding: 20px; text-align: center; color: #444; margin: 0;">
+      Thathsarani Fashion
+    </h1>
+    <div style="padding: 20px;">
+      <p style="font-size: 16px;">Dear Customer,</p>
+      <p style="font-size: 16px;">Thank you for shopping with us! Here are the details of your order:</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+        <thead>
+          <tr style="background-color: #f9f9f9;">
+            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Item</th>
+            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Size</th>
+            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Quantity</th>
+            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cartItems
+            .map(
+              (item) => `
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">
+                  <img src="${item.productId.imageUrl}" alt="${item.productId.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                  ${item.productId.name}
+                </td>
+               
+                <td style="border: 1px solid #ddd; padding: 10px;">${item.clothSize}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">${item.count}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">Rs:${item.unitPrice}</td>
+              </tr>
+            `
+            )
+            .join("")}
+        </tbody>
+      </table>
+      <p style="font-size: 16px; font-weight: bold; text-align: right;">Total Price: Rs:${totalPrice.toFixed(2)}</p>
+      <p style="font-size: 14px;">We hope to see you again soon!</p>
+    </div>
+    <footer style="background-color: #f4f4f4; padding: 10px; text-align: center; font-size: 12px; color: #777;">
+      &copy; ${new Date().getFullYear()} Thathsarani Fashion. All rights reserved.
+    </footer>
+  </div>
+`,
       };
       
       transporter.sendMail(mailOptions, function(error, info){
@@ -139,43 +183,3 @@ exports.sendEmail = (req, res) => {
  
 };
 
-
-exports.sendEmailToAssignIntern = (req, res) => {
-   try {
-      const {mentoremail,leavedate ,mentorname,users} = res.locals.userData;
-      let date = new Date(leavedate);
-       const formattedDate = date.toLocaleDateString();
-      console.log(mentoremail,leavedate);
-      const emails = users.map(user => user.email);
-
-      var transporter = nodemailer.createTransport({
-  
-          service: 'gmail',
-          auth: {
-            user: process.env.Email,
-            pass: process.env.Password 
-          }
-        });
-        
-        var mailOptions = {
-          from: process.env.Email,
-          to: emails,
-          subject: 'Leave infromation',
-          html: `Message from ${mentorname}:he is absent in this day ${formattedDate}`
-        };
-        
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error);
-          } else {
-            console.log('Email sent: ' + info.response);
-            res.status(201).json({ msg: "User send email successfully", success: true});
-          }
-        });
-         
-      }catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Internal Server Error" });
-      }                         
-
-};

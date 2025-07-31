@@ -41,7 +41,7 @@ async function IsAdmin(req, res, next){
     const {id} =req.data;
     const user = await User.findById(id);
 
-     if (user.role !== "admin") {
+     if (user.role !== "Admin") {
           return res
             .status(403)
             .json({ msg: "You do not have permission to access this function" });
