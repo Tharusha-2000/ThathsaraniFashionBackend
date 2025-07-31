@@ -4,7 +4,6 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
-const Evaluationformdetails = require('./models/Evaluationformdetails.js');
 const userRoute = require("./routes/usersRoute.js");
 
 const body=require('body-parser');

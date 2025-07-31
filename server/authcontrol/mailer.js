@@ -1,7 +1,7 @@
 var nodemailer = require('nodemailer');
 const otpGenerator = require("otp-generator");
 const User = require("../models/user.js");
-const Task = require("../models/task.js");
+
 
 
 exports.sendingOTPMail = async (req, res) => {
