@@ -41,6 +41,9 @@ router.post('/cart',middleware.Auth,middleware.IsUser,controller.addToCart);
 router.put('/cart/:id',middleware.Auth,middleware.IsUser,controller.updateFromCart);
 router.delete('/cart/:id',middleware.Auth,middleware.IsUser,controller.deleteFromCart);
 
+router.post('/predict-month-revenue',middleware.Auth,middleware.IsAdmin,controller.PredictionMonthRevenue);
+router.get('/revenue-data',middleware.Auth,middleware.IsAdmin,controller.AllMonthRevenue);
+
 
 module.exports = router;
 

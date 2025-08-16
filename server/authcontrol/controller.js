@@ -7,9 +7,11 @@ const Cart = require("../models/Cart.js");
 const Order = require("../models/Order.js"); 
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.StripeSecretKey);
-
-
+const fs = require("fs");
+const fetch = require("node-fetch"); 
+const path = require("path");
 /*..............................login page.............................................*/
+
 
 
 
@@ -858,6 +860,86 @@ exports.getProductById = async (req, res) => {
     });
   }
 };   
+
+
+exports.PredictionMonthRevenue = async (req, res) => {
+  try {
+    const { month } = req.body;
+    if (!month) {
+      return res.status(400).json({ error: "Month is required" });
+    }
+
+    // Load past 3 years of revenue data
+    const revenueData = JSON.parse(fs.readFileSync("./revenue.json", "utf-8"));
+    console.log("Revenue Data:", revenueData);
+
+    // Prompt for Groq
+    const prompt = `
+      I have past 10 years of monthly revenue data: ${JSON.stringify(revenueData)}
+      Please predict the revenue for the month of "${month}" for the next year.
+      Respond ONLY in JSON format like: {"month":"${month}","predictedRevenue":1234}
+    `;
+
+    // Call Groq API
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.thathsarani}`
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      })
+    });
+
+    const groqData = await groqRes.json();
+    console.log("Groq Response:", groqData);
+
+    let prediction = groqData?.choices?.[0]?.message?.content || "{}";
+    prediction = prediction.replace(/```json|```/g, "").trim();
+    
+    try {
+      prediction = JSON.parse(prediction);
+    } catch (parseError) {
+      console.error("Failed to parse prediction JSON:", parseError);
+      prediction = { error: "Invalid prediction format" };
+    }
+
+    res.json(prediction);
+    console.log("Prediction Response:", prediction);
+  } catch (error) {
+    console.error("Prediction error:", error);
+    res.status(500).json({ error: "Failed to get prediction" });
+  }
+};
+
+exports.AllMonthRevenue = async (req, res) => {
+
+  const filePath = path.join(__dirname, "../revenue.json");
+
+  // Read the revenue.json file
+  fs.readFile(filePath, "utf-8", (err, data) => {
+    if (err) {
+      console.error("Error reading revenue.json:", err);
+      return res.status(500).json({ error: "Failed to load revenue data" });
+    }
+
+    try {
+      const revenueData = JSON.parse(data); // Parse the JSON data
+      res.json(revenueData); // Send the data to the frontend
+    } catch (parseError) {
+      console.error("Error parsing revenue.json:", parseError);
+      res.status(500).json({ error: "Invalid JSON format in revenue.json" });
+    }
+  });
+};
+
+
 
 
 
