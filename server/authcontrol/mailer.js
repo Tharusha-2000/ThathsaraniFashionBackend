@@ -76,7 +76,7 @@ exports.sendWelcomeEmail = (req, res) => {
                 <p><strong>Password:</strong> ${password}</p>
               </div>
               <p style="text-align: center; color: #333;">Your are welcome!</p>
-              <p style="text-align: center; color: #333;"><a href="https://imsfrontend.vercel.app/">Visit our site</a></p>
+              <p style="text-align: center; color: #333;"><a href="https://imsfrontend.verce/">Visit our site</a></p>
             </div> `
 
 
