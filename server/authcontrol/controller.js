@@ -411,7 +411,7 @@ exports.createProduct=async(req, res) =>{
 
   try {
     const { name, imageUrl, categories, description, isAvailable, sizes } = req.body;
-
+    console.log(req.body.sizes);
     // Validate categories 
     const invalidCategories = categories.filter(
       (category) => !allowedCategories.includes(category)
@@ -525,6 +525,62 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+
+exports.updateProductCount = async (req, res) => {
+  try {
+    const { id } = req.data;
+
+    console.log(req.data);
+    const  cartItems  = req.body;
+    console.log(cartItems);
+   
+    if (!cartItems || !Array.isArray(cartItems)) {
+      return res.status(400).json({ message: "Invalid cart items." });
+    }
+
+    // Iterate over each cart item
+    for (const item of cartItems) {
+      const { productId, clothSize, count } = item;
+      console.log(productId, clothSize, count);
+      if (!productId || !clothSize || !count) {
+        return res.status(400).json({ message: "Missing required fields in cart item." });
+      }
+     // Update product count in the database
+      const product = await Product.findById(productId._id);
+      console.log(product);
+
+      if (!product) {
+        return res.status(404).json({ message: `Product with ID ${productId._id} not found.` });
+      }
+      
+
+     // Match the `clothSize` with the `size` field in the `sizes` array
+      const sizeIndex = product.sizes.findIndex((size) => size.size === clothSize);
+      console.log(sizeIndex);
+      if (sizeIndex === -1) {
+        return res.status(400).json({ message: `Size ${clothSize} not found for product ${productId.name}.` });
+      }
+      // Decrement the `count` field for the matched size
+       if (isNaN(product.sizes[sizeIndex].count) || isNaN(count)) {
+          return res.status(400).json({ message: `Invalid count value for product ${productId.name}, size ${clothSize}.` });
+        }
+          // Decrement the `count` field for the matched size
+      if (product.sizes[sizeIndex].count < count) {
+        return res.status(400).json({ message: `Insufficient stock for product ${productId.name}, size ${clothSize}.` });
+      }
+
+      product.sizes[sizeIndex].count -= count;
+      
+      // Save the updated product
+      await product.save();
+    }
+
+    res.status(200).json({ message: "Product counts updated successfully." });
+  } catch (error) {
+    console.error("Error updating product count:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
 
 exports.updatePaymentStatus = async (req, res , next ) => {
   try {

@@ -24,6 +24,7 @@ router.get('/products', controller.getAllProducts);
 router.get('/product/:id',controller.getProductById);
 router.delete('/product/:id',middleware.Auth,middleware.IsAdmin, controller.deleteProduct);
 router.put('/product/:id',middleware.Auth,middleware.IsAdmin, controller.updateProduct);
+router.put('/updateProductCount',middleware.Auth,middleware.IsUser, controller.updateProductCount);
 
 router.post('/order',middleware.Auth,middleware.IsUser,controller.createOrder);
 router.put('/byOrderId/:id',middleware.Auth,middleware.IsUser,controller.updatePaymentStatus,mailer.sendEmail);
