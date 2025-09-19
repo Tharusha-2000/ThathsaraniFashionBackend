@@ -15,10 +15,19 @@ connectDB();
 
 
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://thathsarani-three.vercel.app"],
     methods: ['GET','POST','PUT',"DELETE"],
     credentials: true
 }))
+
+// app.use(cors({
+//   origin: ["http://localhost:5173"],
+//   methods: ['GET','POST','PUT',"DELETE"],
+//   credentials: true
+// }))
+
+
+
 app.set('view engine', 'ejs');
 app.use(morgan('tiny'));
 app.use(express.json());
